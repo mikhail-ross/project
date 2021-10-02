@@ -1,211 +1,185 @@
-  1 set nocompatible          " отключаем совместимость с vi
-  2 set nomodeline
-  3 set autochdir             " автоматически переключать рабочую папку
-  4 set clipboard=unnamedplus " использовать внешний буфер
-  5 
-  6 set mouse=a               " включаем мышь
-  7 set autoread              " автоматически перезагружать файл, если он был из
-  8 set linebreak             " перенос по словам, а не по буквам
-  9 set fileencodings=utf-8,windows-1251      " подключаем кодировки
- 10 set langmap=йцукнгщзфвчяпО;qweryuopadxzgJ " включаем поддержку основных кома
- 11 
- 12 set number          " включаем нумерацию строк
- 13 set cursorline      " выделяем текущую строку
- 14 set showcmd         " показывать выполняемую команду в правом углу
- 15 set ruler           " показывать номер столбца в правом углу
- 16 set noshowmode      " не отображать режим ввода (powerline уже делает это кр
- 17                                                                             
- 18 set wildmenu
- 19 set wildignore+=*.jpg,*.bmp,*.gif,*.png,*.jpeg,*.mp3,*.mp4,*.mkv,*exe,*.pdf,
- 20 set scrolloff=5
- 21 
- 22 set ttyfast " делает прорисовку плавнее
- 23 au BufRead,BufNewFile * set lazyredraw
- 24 
- 25 set noswapfile      " отключаем swap-файлы
- 26 set undofile        " и подключаем вместо них undo
- 27 set undolevels=1000
- 28 set undoreload=10000
- 29 set undodir=~/.vim/undo
- 30 
- 31 " перемещение по длинным строкам и быстрый ввод команд
- 32 map <Up> gk
- 33 imap <Up> <C-O>gk
- 34 map <Down> gj
- 35 imap <Down> <C-O>gj
- 36 map j gj
- 37 map k gk
- 38 nnoremap ; :
- 39 
- 40 
- 41 autocmd User Startified setlocal cursorline
- 42 let g:startify_enable_special = 0
- 43 let g:startify_list_order = [['Recently used files'], 'files',  ['Recently used files in the current directory:'], 'dir']
- 44 let g:startify_files_number = 5
- 45 
- 46 " настройки отступов
- 47 set cindent         " автоматическая расстановка отступов
- 48 set tabstop=4       " длина табуляции по умолчанию
- 49 set shiftwidth=4
- 50 au BufRead,BufNewFile *.{tex,txt,py,html}   set nocindent
- 51 au BufRead,BufNewFile *.{tex,txt,py,html}   set noautoindent
- 52 au BufRead,BufNewFile *.{tex,xml,html,css}  set shiftwidth=2
- 53 au BufRead,BufNewFile *.{tex,xml,html,css}  set tabstop=2
- 54 au BufRead,BufNewFile *.{c} set expandtab
- 55 set smarttab        " динамическое изменение длины табуляции
- 56 
- 57 " настройки подсветки синтаксиса
- 58 filetype off
- 59 filetype indent plugin on
- 60 syntax on
- 61 syntax spell toplevel
- 62 set t_Co=256
- 63 au BufRead,BufNewFile *.{s,asm,inc} set ft=nasm                                                                                                                                                                                           
- 64 
- 65 " настройки powerline
- 66 set laststatus=2
- 67 set ttimeoutlen=10 " убирает задержку при выходе из режима вставки
- 68 let g:airline_powerline_fonts=1
- 69 let g:airline_detect_whitespace=0
- 70 let g:airline#extensions#tabline#enabled = 1
- 71 let g:airline#extensions#tabline#show_tab_type = 0
- 72 let g:airline#extensions#tabline#show_close_button = 0
- 73 let g:airline#extensions#tabline#show_buffers = 0
- 74 let g:airline#extensions#tabline#tab_min_count = 2
- 75 
- 76 " у вима есть 2 режима работы: в одном он бибикает, в другом - всё портит (с)
- 77 " проблема с бибиканьем оказалась решаема
- 78 set noerrorbells
- 79 set visualbell
- 80 set t_vb=
- 81 
- 82 function! Run() " расширяем и без того безграничные возможности F5
- 83     if expand("%:e")=="cpp"
- 84         !clang++ -std=c++14 -I. -Wall -lGLU -lGL -lglut "%" && "./a.out"
- 85     elseif expand("%:e")=="c"                                                                                                                                                                                                             
- 86         !gcc -O2 -Wall -Wno-pointer-sign -std=gnu11 "%" -lm && "./a.out"
- 87     elseif expand("%:e")=="tex"
- 88         !xelatex --8bit  --shell-escape "%" && rm "%:r.log" && (evince "%:r.pdf" 2> /dev/null &)
- 89 "       !pdflatex "%" && rm "%:r.log" && (evince "%:r.pdf" 2> /dev/null &)
- 90     elseif expand("%:e")=="xtex"
- 91         !xelatex --8bit  --shell-escape "%" && rm "%:r.log" && (evince "%:r.pdf" 2> /dev/null &)
- 92     elseif expand("%:e")=="py"
- 93         !python3 "%"
- 94     elseif expand("%:e")=="pas"
- 95         !fpc -oa.out "%" && "./a.out" && rm "%:r.o"
- 96     elseif expand("%:e")=="java"
- 97         !javac "%" && java "%:r" && rm "%:r.class"
- 98     elseif expand("%:e")=="sh"
- 99         !bash "%"
-100     elseif expand("%:e")=="rb"
-101         !ruby "%"
-102     elseif expand("%:e")=="html"
-103         !(firefox -p test "%" &)
-104     elseif expand("%:e")=="md"
-105         !grip -b "%"
-106     elseif expand("%:e")=="s"
-107         !~/.vim/build_asm.sh "%" "%:p:h"
-108     elseif expand("%:e")=="asm"
-109         !~/.vim/build_asm.sh "%" "%:p:h"
-110     endif
-111 endfunction
-112 
-113 function Template() " шаблоны для некоторых языков
-114     write
-115     !~/.vim/template.sh %
-116     edit
-117 endfunction
-118 
-119 " проверка орфографии
-120 set nospell
-121 set spelllang=en,ru
-122 
-123 function Spell() " включение/выключение проверки
-124     if &spell
-125         set nospell
-126         call cursor(line('.'), col('.')-1) " чтобы курсор не убегал
-127     else
-128         set spell
-129         syntax spell toplevel
-130         highlight clear SpellBad " подсветка ошибок
-131         highlight SpellBad ctermfg=Red
-132         highlight clear SpellCap
-133         highlight clear SpellLocal
-134         call cursor(line('.'), col('.')-1)
-135     endif
-136 endfunction
-137 
-138 function ToggleLight()
-139     if exists("g:lucius_style")
-140         color night
-141         let g:airline_theme="dark"
-142         AirlineRefresh                                                                                                                                                                                                                    
-143         unlet g:lucius_style
-144     else
-145         let g:lucius_style="light"
-146         let g:lucius_contrast="high"
-147         let g:lucius_contrast_bg="high"
-148         color lucius
-149     endif
-150 endfunction
-151 
-152 command Light call ToggleLight()
-153 
-154 function Tex()
-155     set tw=80
-156     set fo+=t
-157     set ft=tex
-158     call Spell()
-159 endfunction
-160 au BufRead,BufNewFile *.{tex,xtex}  call Tex()
-161 
-162 map <F4> :NERDTreeToggle<CR>
-163 map <F5> :call Run()<CR>
-164 map <F6> :call Template()<CR><CR>
-165 map <F7> :!~/.vim/test.sh<CR>
-166 map <F8> :!make run<CR>
-167 map <F9> :!make debug<CR>
-168 map <F10> :call Spell()<CR>
-169 
-170 " отключаем справку по F1 и 'расширяем' Esc
-171 map <F1> <Esc>
-172 imap <F1> <Esc>
-173 
-174 " LaTeX itemize: Item 100,110
-175 com -nargs=1 Item <args>s/^.*/  \\item &
-176 
-177 " не очищать буфер обмена при выходе
-178 autocmd VimLeave * call system("xsel -ib", getreg('+'))
-179 
-180 " сохранить из-под sudo
-181 cmap w!! w !sudo tee > /dev/null %
-182 
-183 nnoremap g<Left> gT
-184 nnoremap g<Right> gt
-185 
-186 let g:AutoPairsMultilineClose = 0
-187 let g:AutoPairsFlyMode = 0                                                                                                                                                                                                                
-~                                                                                                                                                                                                                                             
-~                                                                                                                                                                                                                                             
-~                                                                                                                                                                                                                                             
-~                                                                                                                                                                                                                                             
-~                                                                                                                                                                                                                                             
-~                                                                                                                                                                                                                                             
-~                                                                                                                                                                                                                                             
-~                                                                                                                                                                                                                                             
-~                                                                                                                                                                                                                                             
-~                                                                                                                                                                                                                                             
-~                                                                                                                                                                                                                                             
-~                                                                                                                                                                                                                                             
-~                                                                                                                                                                                                                                             
-~                                                                                                                                                                                                                                             
-~                                                                                                                                                                                                                                             
-~                                                                                                                                                                                                                                             
-~                                                                                                                                                                                                                                             
-~                                                                                                                                                                                                                                             
-~                                                                                                                                                                                                                                             
-~                                                                                                                                                                                                                                             
-~                                                                                                                                                                                                                                             
-.vimrc                                                                                                                                                                                                                      187,19       Внизу
+   set nocompatible          " отключаем совместимость с vi
+   set nomodeline
+   set autochdir             " автоматически переключать рабочую папку
+   set clipboard=unnamedplus " использовать внешний буфер
+   
+   set mouse=a               " включаем мышь
+   set autoread              " автоматически перезагружать файл, если он был из
+   set linebreak             " перенос по словам, а не по буквам
+   set fileencodings=utf-8,windows-1251      " подключаем кодировки
+  set langmap=йцукнгщзфвчяпО;qweryuopadxzgJ " включаем поддержку основных кома
+  
+  set number          " включаем нумерацию строк
+  set cursorline      " выделяем текущую строку
+  set showcmd         " показывать выполняемую команду в правом углу
+  set ruler           " показывать номер столбца в правом углу
+  set noshowmode      " не отображать режим ввода (powerline уже делает это кр
+                                                                              
+  set wildmenu
+  set wildignore+=*.jpg,*.bmp,*.gif,*.png,*.jpeg,*.mp3,*.mp4,*.mkv,*exe,*.pdf,
+  set scrolloff=5
+  
+  set ttyfast " делает прорисовку плавнее
+  au BufRead,BufNewFile * set lazyredraw
+  
+  set noswapfile      " отключаем swap-файлы
+  set undofile        " и подключаем вместо них undo
+  set undolevels=1000
+  set undoreload=10000
+  set undodir=~/.vim/undo
+  
+  " перемещение по длинным строкам и быстрый ввод команд
+  map <Up> gk
+  imap <Up> <C-O>gk
+  map <Down> gj
+  imap <Down> <C-O>gj
+  map j gj
+  map k gk
+  nnoremap ; :
+  
+  
+  autocmd User Startified setlocal cursorline
+  let g:startify_enable_special = 0
+  let g:startify_list_order = [['Recently used files'], 'files',  ['Recently used files in the current directory:'], 'dir']
+  let g:startify_files_number = 5
+  
+  " настройки отступов
+  set cindent         " автоматическая расстановка отступов
+  set tabstop=4       " длина табуляции по умолчанию
+  set shiftwidth=4
+  au BufRead,BufNewFile *.{tex,txt,py,html}   set nocindent
+  au BufRead,BufNewFile *.{tex,txt,py,html}   set noautoindent
+  au BufRead,BufNewFile *.{tex,xml,html,css}  set shiftwidth=2
+  au BufRead,BufNewFile *.{tex,xml,html,css}  set tabstop=2
+  au BufRead,BufNewFile *.{c} set expandtab
+  set smarttab        " динамическое изменение длины табуляции
+  
+  " настройки подсветки синтаксиса
+  filetype off
+  filetype indent plugin on
+  syntax on
+  syntax spell toplevel
+  set t_Co=256
+  au BufRead,BufNewFile *.{s,asm,inc} set ft=nasm                                                                                                                                                                                           
+  
+  " настройки powerline
+  set laststatus=2
+  set ttimeoutlen=10 " убирает задержку при выходе из режима вставки
+  let g:airline_powerline_fonts=1
+  let g:airline_detect_whitespace=0
+  let g:airline#extensions#tabline#enabled = 1
+  let g:airline#extensions#tabline#show_tab_type = 0
+  let g:airline#extensions#tabline#show_close_button = 0
+  let g:airline#extensions#tabline#show_buffers = 0
+  let g:airline#extensions#tabline#tab_min_count = 2
+  
+ " у вима есть 2 режима работы: в одном он бибикает, в другом - всё портит (с)
+ " проблема с бибиканьем оказалась решаема
+ set noerrorbells
+ set visualbell
+ set t_vb=
+  
+ function! Run() " расширяем и без того безграничные возможности F5
+     if expand("%:e")=="cpp"
+         !clang++ -std=c++14 -I. -Wall -lGLU -lGL -lglut "%" && "./a.out"
+     elseif expand("%:e")=="c"                                                                                                                                                                                                             
+         !gcc -O2 -Wall -Wno-pointer-sign -std=gnu11 "%" -lm && "./a.out"
+     elseif expand("%:e")=="tex"
+         !xelatex --8bit  --shell-escape "%" && rm "%:r.log" && (evince "%:r.pdf" 2> /dev/null &)
+ "       !pdflatex "%" && rm "%:r.log" && (evince "%:r.pdf" 2> /dev/null &)
+     elseif expand("%:e")=="xtex"
+         !xelatex --8bit  --shell-escape "%" && rm "%:r.log" && (evince "%:r.pdf" 2> /dev/null &)
+     elseif expand("%:e")=="py"
+ !python3 "%"
+    elseif expand("%:e")=="pas"
+         !fpc -oa.out "%" && "./a.out" && rm "%:r.o"
+     elseif expand("%:e")=="java"
+         !javac "%" && java "%:r" && rm "%:r.class"
+     elseif expand("%:e")=="sh"
+ !bash "%"
+    elseif expand("%:e")=="rb"
+        !ruby "%"
+    elseif expand("%:e")=="html"
+        !(firefox -p test "%" &)
+    elseif expand("%:e")=="md"
+        !grip -b "%"
+ elseif expand("%:e")=="s"
+        !~/.vim/build_asm.sh "%" "%:p:h"
+    elseif expand("%:e")=="asm"
+        !~/.vim/build_asm.sh "%" "%:p:h"
+ endif
+endfunction
+ 
+function Template() " шаблоны для некоторых языков
+    write
+    !~/.vim/template.sh %
+    edit
+endfunction
+ 
+" проверка орфографии
+set nospell
+set spelllang=en,ru
+ 
+function Spell() " включение/выключение проверки
+    if &spell
+        set nospell
+        call cursor(line('.'), col('.')-1) " чтобы курсор не убегал
+else
+        set spell
+        syntax spell toplevel
+        highlight clear SpellBad " подсветка ошибок
+        highlight SpellBad ctermfg=Red
+        highlight clear SpellCap
+        highlight clear SpellLocal
+        call cursor(line('.'), col('.')-1)
+    endif
+endfunction
+ 
+function ToggleLight()
+    if exists("g:lucius_style")
+        color night
+        let g:airline_theme="dark"
+        AirlineRefresh                                                                                                                                                                                                                    
+        unlet g:lucius_style
+    else
+        let g:lucius_style="light"
+        let g:lucius_contrast="high"
+        let g:lucius_contrast_bg="high"
+        color lucius
+    endif
+endfunction
+ 
+command Light call ToggleLight()
+ 
+function Tex()
+    set tw=80
+    set fo+=t
+    set ft=tex
+    call Spell()
+endfunction
+au BufRead,BufNewFile *.{tex,xtex}  call Tex()
+ 
+map <F4> :NERDTreeToggle<CR>
+map <F5> :call Run()<CR>
+map <F6> :call Template()<CR><CR>
+map <F7> :!~/.vim/test.sh<CR>
+map <F8> :!make run<CR>
+map <F9> :!make debug<CR>
+map <F10> :call Spell()<CR>
 
-
+" отключаем справку по F1 и 'расширяем' Esc
+map <F1> <Esc>
+imap <F1> <Esc>
+ 
+" LaTeX itemize: Item 100,110
+com -nargs=1 Item <args>s/^.*/  \\item &
+ 
+" не очищать буфер обмена при выходе
+autocmd VimLeave * call system("xsel -ib", getreg('+'))
+ 
+" сохранить из-под sudo
+cmap w!! w !sudo tee > /dev/null %
+nnoremap g<Left> gT
+nnoremap g<Right> gt
+let g:AutoPairsMultilineClose = 0
+let g:AutoPairsFlyMode = 0
